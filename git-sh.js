@@ -1,111 +1,81 @@
+#!/usr/bin/env node
+
 var readline = require('readline');
+var exec = require('child_process').exec;
+var fs = require('fs');
 
-var cin = process.stdin;
-cin.setEncoding('utf8');
+var CMD_SH;
+var KEYS;
+var PROMPT='git-sh> ';
+var FILE = __dirname + '/cmd.json';
+var UTF8 = 'utf8';
+ 	 	
+var rl;
 
-var rl = readline.createInterface(cin, process.stdout,completer);
+/*
+ * MAIN
+ */
 
-rl.setPrompt('git-sh> ');
-rl.prompt();
+main();
 
-var cmd={'log':'git log'}
 
-rl.on('line', function(line) {
+/*
+ * FUNCTION
+ */
 
-	if(cmd[line] != undefined){
-		b();
-	}
+function main(){
+
+	fs.readFile(FILE, UTF8, function (err, data) {
+		if (err) {
+			console.log('Error: ' + err);
+			return;
+		} 
+		CMD_SH = JSON.parse(data);
+		KEYS=Object.keys(CMD_SH)    
+	});
+
+	var cin = process.stdin;
+	cin.setEncoding(UTF8);
+
+	rl = readline.createInterface(cin, process.stdout,completer);
+	rl.setPrompt(PROMPT);
 	rl.prompt();
 
-}).on('SIGINT', function() {
-	console.log('^C');
-	rl.write('\n');
+	rl.on('line', function(line) {
+		var cmd = line.split(' ')[0];
+		var arg = line.substring(cmd.length,line.length)
 
-}).on('close', function() {
-	process.exit(0);
-})
+		if(CMD_SH[cmd] != undefined){
+			run_cmd(CMD_SH[cmd],arg);
+		}
+		rl.prompt();
 
+	}).on('SIGINT', function() {
+		rl.write('^C');	
+		rl.write('\n');
+
+	}).on('close', function() {
+		console.log('');
+		process.exit(0);
+	})
+}
 
 function completer(line) {
-	var completions = ['help','error','exit','quit'];
-	var hits = completions.filter(function(c) { 
+	var hits = KEYS.filter(function(c) { 
 		return c.indexOf(line) == 0; 
 	});
-	return [hits.length ? hits : completions, line]
+	return [hits.length ? hits : KEYS, line]
 }
 
-function exe(cmd, args, callBack ) {
-	var spawn = require('child_process').spawn;
-	var child = spawn(cmd, args);
-	var resp = "";
-
-	child.stdout.on('data', function (buffer) { resp += buffer.toString() });
-	child.stdout.on('end', function() { callBack (resp) });
-}
-
-function run_cmd(line){
-	exe( "ls", ["-l"], function(text) { console.log (text) });
-}
-
-function a(){
-	var exec = require('child_process').exec,
-	    child;
-
-	child = exec('cat *.js bad_file | wc -l',
+function run_cmd(cmd,arg){
+	
+	var child = exec(cmd+arg,
 			function (error, stdout, stderr) {
-				console.log('stdout: ' + stdout);
-				console.log('stderr: ' + stderr);
-				if (error !== null) {
-					console.log('exec error: ' + error);
-				}
-			});
-
-	child.stdin.end();
-}
-
-function aa(){
-	var spawn = require('child_process').spawn,
-	    ls    = spawn('ls', ['-lh', '/usr']);
-	console.log('fin');
-
-	ls.stdout.on('data', function (data) {
-		console.log('stdout: ' + data);
-	});
-
-	ls.stderr.on('data', function (data) {
-		console.log('stderr: ' + data);
-	});
-
-	ls.on('close', function (code) {
-		console.log('child process exited with code ' + code);
-
-	});
-}
-
-
-
-function aaa(){
-
-	var spawn = require('child_process').spawn,
-	    grep  = spawn('ls', ['-ltr']);
-	grep.stdout.on('data', function (data) {
-		console.log('stdout: ' + data);
-		grep.stdin.end();
-
-	});
-
-
-}
-
-
-function b(){
-	var exec = require('child_process').exec,
-	    child;
-
-	child = exec('ls -ltr',
-			function (error, stdout, stderr) {
-				console.log('\n\n'+stdout);
+				rl.setPrompt('');
+				rl.write('\n');				
+				console.log(stdout);
+				rl.setPrompt(PROMPT);
 				rl.write('\n');
-
 			});
+	
 }
