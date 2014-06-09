@@ -1,6 +1,13 @@
 {
-	"v"		: 	"git --version",
-	"ll"	:	"git log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(white)%h  %C(bold green)%ar  %C(white)%s %C(reset)' $1 ",
-	"br"	: 	"git branch"
-	
+	"v"			: 	"git --version",
+	"ll"		:	"git log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(white)%h  %C(bold green)%ar  %C(white)%s %C(reset)' $1 ",
+	"br"		: 	"git branch",
+	"st"		:	"git status",
+	"co"		:	"git checkout",
+	"sw"	    :   "git show --name-only",
+	"ci"	    :	"git commit -m",
+	"ad"		:   "git add",
+
+	"ls"		: 	"ls -ltr",
+	"pwd"		:	"pwd"
 }
