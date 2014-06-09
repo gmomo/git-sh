@@ -1,0 +1,6 @@
+{
+	"v"		: 	"git --version",
+	"ll"	:	"git log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(white)%h  %C(bold green)%ar  %C(white)%s %C(reset)' $1 ",
+	"br"	: 	"git branch"
+	
+}
